@@ -1,11 +1,16 @@
 import time
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 app = FastAPI()
+
+class SearchRequest(BaseModel):
+    query: str
+    max_results: int = 3
 
 def My_search(query: str, max_results: int = 3):
     start_time = time.time()
@@ -64,10 +69,10 @@ def My_search(query: str, max_results: int = 3):
 def health_check():
     return {"status": "ok", "message": "PDF Fetch API running"}
 
-@app.get("/search")
-def fetch_pdfs(query: str = Query(..., min_length=3), max_results: int = 3):
+@app.post("/search")
+def fetch_pdfs(req: SearchRequest):
     try:
-        result = My_search(query, max_results)
+        result = My_search(req.query, req.max_results)
         return JSONResponse(content={"results": result})
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        raise HTTPException(status_code=500, detail=str(e))
