@@ -1,57 +1,73 @@
-import asyncio
-from fastapi import FastAPI
-from pydantic import BaseModel
-from playwright.async_api import async_playwright
-from fake_useragent import UserAgent
+import time
+from fastapi import FastAPI, Query
+from fastapi.responses import JSONResponse
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
-app = FastAPI(title="Scholar PDF Search API")
+app = FastAPI()
 
+def My_search(query: str, max_results: int = 3):
+    start_time = time.time()
 
-def get_random_user_agent():
-    try:
-        return UserAgent().random
-    except:
-        return (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 Chrome/114.0.0.0 Safari/537.36"
-        )
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-images")
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36")
 
-async def my_search(query: str, max_results: int = 2):
+    driver = webdriver.Chrome(options=options)
+
+    formatted_query = f'{query} (site:arxiv.org OR site:researchgate.net OR site:*.edu OR site:*.ac.in OR site:*.ac.uk OR site:ieeexplore.ieee.org OR site:springer.com) filetype:pdf'
+    search_url = f"https://www.google.com/search?q={formatted_query.replace(' ', '+')}"
+    driver.get(search_url)
+
+    time.sleep(1)
+
     results = []
-    ua = get_random_user_agent()
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        ctx     = await browser.new_context(user_agent=ua)
-        page    = await ctx.new_page()
-        url     = f"https://scholar.google.com/scholar?q={query.replace(' ', '+')}"
-        await page.goto(url, timeout=15000)
+    try:
+        result_blocks = driver.find_elements(By.CSS_SELECTOR, "div.b8lM7")
 
-        blocks = await page.query_selector_all("div.gs_r.gs_or.gs_scl")
-        for block in blocks[:max_results]:
-            title_el = await block.query_selector("h3.gs_rt")
-            title    = await title_el.inner_text() if title_el else "No Title"
+        for block in result_blocks:
+            try:
+                title_el = block.find_element(By.CSS_SELECTOR, "h3.LC20lb.MBeuO.DKV0Md")
+                title = title_el.text.strip()
 
-            link_el  = await title_el.query_selector("a") if title_el else None
-            article  = await link_el.get_attribute("href") if link_el else None
+                link_el = block.find_element(By.TAG_NAME, "a")
+                href = link_el.get_attribute("href")
 
-            pdf_el   = await block.query_selector("div.gs_or_ggsm a")
-            pdf_link = await pdf_el.get_attribute("href") if pdf_el else None
+                if href and href.endswith(".pdf"):
+                    results.append({
+                        "title": title,
+                        "pdf_link": href
+                    })
 
-            results.append({
-                "title": title,
-                "article_url": article or "Not available",
-                "pdf_url":     pdf_link or "No PDF found"
-            })
-        await browser.close()
+                if len(results) >= max_results:
+                    break
+
+            except Exception:
+                continue
+
+    except Exception as e:
+        print("[Selenium Error]", e)
+
+    driver.quit()
+    print(f"[Selenium] Time taken: {round(time.time() - start_time, 2)} seconds")
     return results
 
+@app.get("/")
+def health_check():
+    return {"status": "ok", "message": "PDF Fetch API running"}
 
-class SearchRequest(BaseModel):
-    query:       str
-    max_results: int = 2
-
-
-@app.post("/search")
-async def search_endpoint(req: SearchRequest):
-    papers = await my_search(req.query, req.max_results)
-    return {"results": papers}
+@app.get("/search")
+def fetch_pdfs(query: str = Query(..., min_length=3), max_results: int = 3):
+    try:
+        result = My_search(query, max_results)
+        return JSONResponse(content={"results": result})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
