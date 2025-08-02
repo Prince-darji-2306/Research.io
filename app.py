@@ -23,6 +23,9 @@ class PDFResult(BaseModel):
     title: str
     pdf_link: str
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 @app.get("/search", response_model=List[PDFResult])
 def search_pdfs(query: str = Query(..., description="Search query"), max_results: int = Query(3, ge=1, le=10)):
