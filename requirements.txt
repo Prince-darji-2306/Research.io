@@ -1,4 +1,4 @@
 fastapi
-uvicorn[standard]
-playwright
-fake-useragent
+uvicorn
+undetected-chromedriver
+selenium
