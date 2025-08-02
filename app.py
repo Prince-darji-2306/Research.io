@@ -23,7 +23,7 @@ class PDFResult(BaseModel):
     title: str
     pdf_link: str
 
-@app.get("/health")
+@app.get("/")
 def health_check():
     return {"status": "ok"}
 
