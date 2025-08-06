@@ -19,3 +19,4 @@ requests>=2.31.0                 # To download PDFs or resources via URL
 # 🧪 Utilities
 numpy>=1.24.3                    # Needed by FAISS and other ML libs
 
+json5
