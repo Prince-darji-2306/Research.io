@@ -21,3 +21,5 @@ numpy>=1.24.3                    # Needed by FAISS and other ML libs
 
 json5
 langchain_groq 
+bs4
+beautifulsoup4
