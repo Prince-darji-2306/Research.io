@@ -1,0 +1,27 @@
+[data-testid='stAppViewBlockContainer']
+{
+    padding-top:13px !important;
+}
+
+.thinking-box {
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: #ffffff;
+    color: #797979;
+    padding: 8px 14px;
+    font-size: 0.90em;
+    border-radius: 20px;
+    border: 1px solid #dddddd;
+}
+
+.user-msg {
+    background-color: #f2f2f2;
+    color: black;
+    padding: 10px 15px;
+    border-radius: 14px;
+    margin: 20px 0;
+    max-width: 75%;
+    float: right;
+    clear: both;
+    text-align: right;
+}

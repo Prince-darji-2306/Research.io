@@ -1,0 +1,21 @@
+# 🖥️ Core Web UI
+streamlit>=1.35.0                # Web app framework
+
+# 📄 PDF Handling & Viewing
+PyMuPDF==1.22.5                  # Used by PyMuPDFLoader for PDF reading
+streamlit-pdf-viewer==0.0.4      # To show PDFs in the Streamlit app
+
+# 📚 LangChain Ecosystem
+langchain>=0.2.0                 # LLMs, loaders, retrievers
+langchain-community>=0.2.0       # For PyPDFLoader, FAISS
+faiss-cpu>=1.7.4                 # Vector store to store & query embeddings
+
+# 🧠 Embedding Models
+sentence-transformers>=2.6.1     # For embedding text from PDFs
+
+# 📡 Networking
+requests>=2.31.0                 # To download PDFs or resources via URL
+
+# 🧪 Utilities
+numpy>=1.24.3                    # Needed by FAISS and other ML libs
+
