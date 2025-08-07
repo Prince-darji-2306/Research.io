@@ -13,6 +13,8 @@ faiss-cpu              # Vector store to store & query embeddings
 # 📡 Networking
 requests
 
+sentence-transformers
+
 # 🧪 Utilities
 numpy
 
