@@ -1,26 +1,20 @@
-# 🖥️ Core Web UI
-streamlit             # Web app framework
+streamlit==1.49.0
 
-# 📄 PDF Handling & Viewing
-PyMuPDF                  # Used by PyMuPDFLoader for PDF reading
-streamlit-pdf-viewer
+pymupdf==1.26.4
+streamlit-pdf-viewer==0.0.26
 
-# 📚 LangChain Ecosystem
-langchain             # LLMs, loaders, retrievers
-langchain-community       # For PyPDFLoader, FAISS
-faiss-cpu              # Vector store to store & query embeddings
+langchain==0.3.27
+langchain-community==0.3.29
+langchain-core==0.3.81
+langchain-groq==0.3.7
+langchain-huggingface==0.3.1
 
-# 📡 Networking
-requests
+faiss-cpu==1.13.1
+sentence-transformers==4.1.0
 
-sentence-transformers
+requests==2.32.5
+numpy==1.26.4
+json5==0.12.1
 
-# 🧪 Utilities
-numpy
-
-json5
-langchain_groq 
-langchain_huggingface
-bs4
-beautifulsoup4
-pymupdf
+beautifulsoup4==4.13.5
+bs4==0.0.2

@@ -2,16 +2,17 @@ import streamlit as st
 st.set_page_config(page_title="Research.io | AI assistant for Your Research work", layout="wide",page_icon='👨‍🎓')
 
 import os
+import ast
+import time
 import json5
 from PIL import Image
-import time
-import ast
 import streamlit as st
+
 from agent.ToolPapSe import select_paper
-from llm_engine import create_llm, build_messages, clean_state
-from utils.doc_loader import download_pdf, find_relevant_image
-from langchain.memory import ConversationSummaryBufferMemory
 from streamlit_pdf_viewer import pdf_viewer
+from langchain.memory import ConversationSummaryBufferMemory
+from utils.doc_loader import download_pdf, find_relevant_image
+from llm_engine import create_llm, build_messages, clean_state, render_llm_math
 
 
 # ------------------------ Session State Init ------------------------
@@ -81,7 +82,7 @@ if st.session_state.selected_view == "Load Paper":
         st.session_state.selected_view = 'Chat with Paper'
         st.success("✅ Paper Loaded Successfully! Redirecting to chat...")
         
-        time.sleep(1)
+        time.sleep(0.2)
         st.rerun()
 
 # ------------------------ Chat with Paper UI ------------------------
@@ -112,13 +113,12 @@ elif st.session_state.selected_view == "Chat with Paper":
             if msg["type"] == "user":
                 st.markdown(f'<div class="user-msg">{msg["text"]}</div>', unsafe_allow_html=True)
             elif msg['type'] == 'assistant':
-                st.markdown(msg["text"])
+                st.markdown(msg["text"], unsafe_allow_html=True)
             elif msg['type'] == 'img':
                 img = Image.open(msg["text"])
                 st.image(img, width=350)
 
         query = st.chat_input("Ask a question:")
-
 
         if query:
             st.session_state.chat_history.append({"type": "user", "text": query})
@@ -128,36 +128,17 @@ elif st.session_state.selected_view == "Chat with Paper":
 
             messages = build_messages(query, st.session_state.vectorstore)
 
-            # Prepare placeholders
-            think_box = st.empty()
             answer_box = st.empty()
-
-            full_answer = ""
-            thinking = ""
-            in_think = False
-
-            # Stream tokens as they arrive
+            
+            full_answer = r""
             for chunk in create_llm().stream(messages):
                 token = chunk.content or ""
+                full_answer += token
+                answer_box.markdown(full_answer)
 
-                # Handle optional <think> tags
-                if "think" in token:
-                    in_think = True
-                    token = token.replace("think", "")
-                if "thought" in token:
-                    in_think = False
-                    token = token.replace("thought", "")
+            full_answer = render_llm_math(full_answer)
+            answer_box.markdown(full_answer, unsafe_allow_html=True)
 
-                if in_think:
-                    thinking += token
-                    think_box.markdown(
-                        f'<div class="thinking-box">🧠 <i>{thinking}</i></div>',
-                        unsafe_allow_html=True
-                    )
-                else:
-                    full_answer += token
-                    answer_box.markdown(full_answer)
-            think_box.empty()
             st.session_state.chat_history.append({"type": "assistant", "text": full_answer})
 
             if img_path:
@@ -165,7 +146,6 @@ elif st.session_state.selected_view == "Chat with Paper":
                 st.image(img, width=350)
                 st.session_state.chat_history.append({'type': 'img', 'text': img_path})
 
-                
             # Clear thinking once done
             st.session_state.chat_memory.save_context(
                 inputs={"input": query}, 

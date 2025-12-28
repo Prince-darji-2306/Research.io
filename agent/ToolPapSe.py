@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.agents import AgentType
 from langchain.agents import initialize_agent, Tool
@@ -7,12 +8,13 @@ from scrapper.open_access import osearch_pdf_links
 from scrapper.web_scrapper import web_scrapper
 from utils.similarity import select_relevant_papers
 
+load_dotenv()
 
 API = os.getenv('GROQ')
 
 llm = ChatGroq(
     api_key = API,
-    model="gemma2-9b-it",
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
     temperature=0.1,  # adjust for creativity
 )
 
@@ -107,6 +109,7 @@ def select_paper(query: str) -> dict:
 
     Step 3: Select and return ONE best-matching paper from the result of SelectRelevantPapers.
 
+    Step 4: If title is attention is all you need then return link : https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf in told format.
     Return output in this format exactly:
 
     {{

@@ -1,8 +1,10 @@
 import os
+import re
 import streamlit as st
+from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.schema import HumanMessage, SystemMessage
-
+load_dotenv()
 API = os.getenv('GROQ')
 
 if 'sys_u' not in st.session_state:
@@ -12,7 +14,7 @@ if 'sys_u' not in st.session_state:
 def create_llm():
     return ChatGroq(
         api_key = API,
-        model="openai/gpt-oss-120b",
+        model="openai/gpt-oss-20b",
         temperature=0.3,  # adjust for creativity
     )
 
@@ -40,7 +42,6 @@ def build_messages(query: str, vectorstore):
     messages.extend(memory_msgs)
 
     prompt = f"""
-    {os.getenv('THINK')}
 
     Context:
     {context}
@@ -61,3 +62,15 @@ def clean_state(mode = True):
     st.session_state.chat_memory.clear()
     
 
+def render_llm_math(text: str):
+    """
+    Safely render mixed Markdown + LaTeX from LLM output in Streamlit
+    """
+
+    # 1. Convert block math \[ ... \] → $$ ... $$
+    text = re.sub(r"\\\[(.*?)\\\]", r"$$\1$$", text, flags=re.DOTALL)
+
+    # 2. Convert inline math \( ... \) → $ ... $
+    text = re.sub(r"\\\((.*?)\\\)", r"$\1$", text)
+
+    return text

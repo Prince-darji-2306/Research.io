@@ -1,7 +1,7 @@
 import ast
 import json
 import numpy as np
-from embedding import load_model
+from utils.embedding import load_model
 
 # Initialize the embedding model
 embedding_model = load_model()

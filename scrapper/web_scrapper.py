@@ -2,7 +2,7 @@ import requests
 
 # Replace this with your actual deployed Render URL
 def web_scrapper(query: str, max_results :int = 5):
-    BASE_URL = "https://research-io.onrender.com"
+    BASE_URL = "https://oscraper.onrender.com/search"
 
     params = {
         "query": query,
@@ -10,7 +10,7 @@ def web_scrapper(query: str, max_results :int = 5):
     }
 
     try:
-        response = requests.get(f"{BASE_URL}/search", params=params)
+        response = requests.get(BASE_URL, params=params)
         response.raise_for_status()
         data = response.json()
         return data

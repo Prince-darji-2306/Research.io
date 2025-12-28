@@ -1,15 +1,15 @@
-from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from embedding import load_model
-import tempfile
-import requests
-import fitz
 import os
 import io
-from PIL import Image
-from sklearn.metrics.pairwise import cosine_similarity
+import fitz
+import tempfile
+import requests
 import numpy as np
+from PIL import Image
+from utils.embedding import load_model
+from langchain_community.vectorstores import FAISS
+from sklearn.metrics.pairwise import cosine_similarity
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 def find_relevant_image(user_query, pdf_list):
     if not pdf_list:
@@ -31,7 +31,7 @@ def find_relevant_image(user_query, pdf_list):
 
     # Step 5: Get best matching image index
     
-    if max(similarities) >= 0.6:
+    if max(similarities) >= 0.5:
         best_index = np.argmax(similarities)
         return pdf_list[best_index][0]
     return None
@@ -48,8 +48,7 @@ def load_pdf(file_path):
     try:
         loader = PyMuPDFLoader(file_path)
         documents = split_documents(loader.load())
-        embeddings = load_model()
-        return FAISS.from_documents(documents, embeddings)
+        return FAISS.from_documents(documents, load_model())
     except Exception as e:
         raise RuntimeError(f"Failed to load and embed PDF: {e}")
 

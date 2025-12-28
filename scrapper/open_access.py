@@ -23,7 +23,7 @@ def get_semantic_scholar_pdfs(query):
     return results
 
 def get_arxiv_pdfs(query):
-    url = f"http://export.arxiv.org/api/query?search_query=all:{quote(query)}&start=0&max_results=5"
+    url = f"http://export.arxiv.org/api/query?search_query=all:{quote(query)}&start=0&max_results=10"
     response = requests.get(url, headers={"User-Agent": "AcademicBot/1.0"})
     root = ET.fromstring(response.text)
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
@@ -44,7 +44,11 @@ def get_arxiv_pdfs(query):
     return results
 
 def get_openalex_pdfs(query):
-    url = f"https://api.openalex.org/works?filter=title.search:{quote(query)}&per-page=5"
+    url = (
+        "https://api.openalex.org/works"
+        f"?filter=title.search:{quote(query)},open_access.is_oa:true"
+        "&per-page=5"
+    )
     response = requests.get(url, headers={"User-Agent": "AcademicBot/1.0"})
     data = response.json()
 
