@@ -65,8 +65,7 @@ agent = initialize_agent(
     llm=llm,
     agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
     verbose=False,
-    max_iterations=4,
-    early_stopping_method="generate"
+    max_iterations=5,
 )
 
 # --- Paper Selector ---
@@ -94,6 +93,7 @@ def select_paper(query: str) -> dict:
     3. SelectRelevantPapers — Use this to select the top 3 most relevant papers from a list based on the query.
 
     Your task is to find the most relevant research paper for the query: "{query}"
+    Pass query as it is to The Tools.
 
     Follow these rules STRICTLY:
 
@@ -109,7 +109,6 @@ def select_paper(query: str) -> dict:
 
     Step 3: Select and return ONE best-matching paper from the result of SelectRelevantPapers.
 
-    Step 4: If title is attention is all you need then return link : https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf in told format.
     Return output in this format exactly:
 
     {{

@@ -29,8 +29,6 @@ if "selected_view" not in st.session_state:
     st.session_state.selected_view = "Load Paper"
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-if 'user_accessible' not in st.session_state:
-    st.session_state.user_accessible = False
 if 'sys_u' not in st.session_state:
     st.session_state.sys_u = False
 if "chat_memory" not in st.session_state:
@@ -92,13 +90,7 @@ elif st.session_state.selected_view == 'Check Paper':
     pdf = st.session_state.pdf_file
 
     if pdf:
-        if st.session_state.user_accessible:
-            pdf_viewer(pdf, resolution_boost=3)
-        else:
-            api = st.text_input('Enter Acess API : ')
-            if api == os.getenv('ACCESS'):
-                st.session_state.user_accessible  = True
-                st.rerun()             
+        pdf_viewer(pdf, resolution_boost=1)           
     else:
         st.warning("⚠️ Please load a Paper first from the sidebar.")
 
@@ -168,7 +160,6 @@ elif st.session_state.selected_view == "Search & Select Paper":
             with st.spinner("Searching and selecting best paper..."):
             
                 paper = select_paper(user_query)
-        
                 try:
                     paper = json5.loads(paper)
                 except json5.JSONDecodeError:
@@ -192,7 +183,8 @@ elif st.session_state.selected_view == "Search & Select Paper":
                 st.success("✅ Paper Loaded from Web! Redirecting to chat...")
 
                 st.session_state.selected_view = 'Chat with Paper'
-                time.sleep(1)
+
+                time.sleep(0.2)
                 st.rerun()
 
         except Exception as e:

@@ -92,7 +92,7 @@ def osearch_pdf_links(query):
     sources = {
         "SemanticScholar": get_semantic_scholar_pdfs,
         "ArXiv": get_arxiv_pdfs,
-        "OpenAlex": get_openalex_pdfs,
+        # "OpenAlex": get_openalex_pdfs,
         'Springer':get_springer
     }
 
