@@ -31,7 +31,7 @@ def find_relevant_image(user_query, pdf_list):
 
     # Step 5: Get best matching image index
     
-    if max(similarities) >= 0.5:
+    if max(similarities) >= 0.3:
         best_index = np.argmax(similarities)
         return pdf_list[best_index][0]
     return None
